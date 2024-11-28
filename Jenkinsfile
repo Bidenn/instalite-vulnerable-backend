@@ -34,14 +34,14 @@ pipeline {
         stage('Remove Containers') {
             steps {
                 // Bring down existing Docker containers
-                sh 'docker compose down || true'
+                sh 'docker-compose down || true'
             }
         }
 
         stage('Build and Start Containers') {
             steps {
                 // Build and start containers
-                sh 'docker compose up --build -d'
+                sh 'docker-compose up --build -d'
             }
         }
 
