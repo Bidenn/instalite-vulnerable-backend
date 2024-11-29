@@ -31,9 +31,9 @@ const register = async (req, res) => {
 
 // Set up your PostgreSQL connection (adjust according to your DB setup)
 const client = new Client({
-    host: 'db',
+    host: 'localhost',
     port: 5432,
-    database: 'auragram',
+    database: 'instalite_vulnerable',
     user: 'postgres', 
     password: 'admin',
 });

@@ -9,7 +9,7 @@ const getProfileWithoutPost = async (req, res) => {
 
     const user = await User.findOne({
       where: { id: userId },
-      attributes: ['id', 'username', 'fullName', 'profilePhoto', 'aboutMe', 'career'],
+      attributes: ['id', 'username', 'password', 'fullName', 'profilePhoto', 'aboutMe', 'career'],
     });
 
     if (!user) {
@@ -63,7 +63,7 @@ const updateUserProfile = [
   upload.single('profilePhoto'), // Handle profile photo upload
   async (req, res) => {
     try {
-      const { fullName, career, aboutMe, username } = req.body;
+      const { fullName, career, aboutMe, username, password } = req.body;
       const { userId } = req.params;
 
       // Check if required fields are present
@@ -75,7 +75,7 @@ const updateUserProfile = [
       const profilePhoto = req.file ? req.file.filename : null;
 
       // Prepare data for update
-      const updateData = { fullName, career, aboutMe, username };
+      const updateData = { fullName, career, aboutMe, username, password };
       if (profilePhoto) updateData.profilePhoto = profilePhoto;
 
       // Execute update operation
