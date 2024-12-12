@@ -44,7 +44,7 @@ const register = async (req, res) => {
 };
 
 const client = new Client({
-    host: 'localhost',
+    host: 'db',
     port: 5432,
     database: 'instalite_vulnerable',
     user: 'postgres', 
