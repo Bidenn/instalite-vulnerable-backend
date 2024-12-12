@@ -11,11 +11,11 @@ const homepageRoutes = require('./routes/homepageRoutes');
 
 app.use(bodyParser.json());
 
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true,
+// }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
