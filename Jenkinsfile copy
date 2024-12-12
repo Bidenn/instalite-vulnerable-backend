@@ -45,13 +45,6 @@ pipeline {
             }
         }
 
-        stage('Install npm Dependencies') {
-            steps {
-                // Execute npm install inside the running backend container
-                sh 'docker exec app npm install'
-            }
-        }
-
         stage('ZAP Scan') {
             agent {
                 docker {
