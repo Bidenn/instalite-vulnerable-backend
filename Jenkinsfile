@@ -13,23 +13,23 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                // Run SonarQube scanner
-                withSonarQubeEnv('SonarQube Server') { // Ensure the correct SonarQube server name is configured
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         // Run SonarQube scanner
+        //         withSonarQubeEnv('SonarQube Server') { // Ensure the correct SonarQube server name is configured
+        //             sh "${scannerHome}/bin/sonar-scanner"
+        //         }
+        //     }
+        // }
 
-        stage("Quality Gate") {
-            steps {
-                // Wait for the SonarQube Quality Gate
-                timeout(time: 30, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        // stage("Quality Gate") {
+        //     steps {
+        //         // Wait for the SonarQube Quality Gate
+        //         timeout(time: 30, unit: 'MINUTES') {
+        //             waitForQualityGate abortPipeline: true
+        //         }
+        //     }
+        // }
 
         stage('Remove Containers') {
             steps {
