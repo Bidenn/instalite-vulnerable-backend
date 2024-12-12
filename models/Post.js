@@ -1,7 +1,7 @@
 // models/Post.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/config');
-const User = require('./User'); // Import User model
+const User = require('./User'); 
 
 const Post = sequelize.define('Post', {
   content: {
@@ -18,10 +18,9 @@ const Post = sequelize.define('Post', {
   },
 });
 
-// Define the association (Post belongs to User)
 Post.belongsTo(User, {
-  foreignKey: 'userId', // Defines the foreign key in Post
-  as: 'user', // Alias for easier access in queries
+  foreignKey: 'userId', 
+  as: 'user', 
 });
 
 module.exports = Post;

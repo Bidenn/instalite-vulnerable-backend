@@ -2,7 +2,7 @@ const Post = require('../models/Post');
 const { upload } = require('../middlewares/uploadPost');
 const User = require('../models/User');
 
-exports.storePost = [
+const storePost = [
   upload.single('content'),
   async (req, res) => {
     try {
@@ -17,6 +17,7 @@ exports.storePost = [
       }
 
       const imageUrl = req.file.filename;
+
       const post = await Post.create({
         userId,
         caption,
@@ -36,18 +37,15 @@ exports.storePost = [
 ];
 
 
-exports.deletePost = async (req, res) => {
+const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;
-    const { userId } = req.body;
 
-    // **Broken Access Control**: The function does not verify if the userId matches the post owner.
     const post = await Post.findOne({ where: { id: postId } });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // No check on whether the user is the owner of the post
     await Post.destroy({ where: { id: postId } });
 
     res.json({ message: 'Post deleted successfully' });
@@ -58,7 +56,7 @@ exports.deletePost = async (req, res) => {
 };
 
 
-exports.getAllPosts = async (req, res) => {
+const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.findAll();
     res.json(posts);
@@ -67,30 +65,32 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
-exports.getUserPosts = async (req, res) => {
+const getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
+
     const posts = await Post.findAll({ where: { userId } });
+    
     if (posts.length === 0) {
       return res.status(404).json({ error: 'No posts found for this user' });
     }
+
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve posts for this user', details: error.message });
   }
 };
 
-exports.getPostDetails = async (req, res) => {
+const getPostDetails = async (req, res) => {
   try {
     const { postId } = req.params;
 
-    // Fetch the post along with the associated user (posterData)
     const post = await Post.findOne({
       where: { id: postId },
       include: {
-        model: User, // Assuming the associated model is 'User'
-        as: 'user', // Use the alias for the association
-        attributes: ['id', 'username', 'profilePhoto'], // Adjust the attributes as needed
+        model: User, 
+        as: 'user', 
+        attributes: ['id', 'username', 'profilePhoto'], 
       },
     });
 
@@ -98,11 +98,10 @@ exports.getPostDetails = async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Respond with post details along with poster data
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve post details', details: error.message });
   }
 };
 
-
+module.exports = { storePost, deletePost, getAllPosts, getUserPosts, getPostDetails };

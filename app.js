@@ -11,11 +11,13 @@ const homepageRoutes = require('./routes/homepageRoutes');
 
 app.use(bodyParser.json());
 
-// app.use(cors({
-//   origin: '*',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   credentials: true,
-// }));
+const frontendUrl = process.env.FRONTEND_URL;
+
+app.use(cors({
+  origin: `${frontendUrl}`,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -39,4 +41,5 @@ sequelize.sync({ force: true })
 const port = 5000;
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  console.log(`Frontend URL : ${frontendUrl}`);
 });

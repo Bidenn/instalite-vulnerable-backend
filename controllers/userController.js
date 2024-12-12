@@ -1,11 +1,11 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
-const jwt = require('jsonwebtoken');
 const { upload } = require('../middlewares/uploadUser');
+const { Op } = require("sequelize");
 
 const getProfileWithoutPost = async (req, res) => {
   try {
-    const { userId } = req.params;  // Get the userId from URL parameters
+    const { userId } = req.params;
 
     const user = await User.findOne({
       where: { id: userId },
@@ -27,9 +27,7 @@ const getProfileWithoutPost = async (req, res) => {
 
 const getProfileWithPosts = async (req, res) => {
   try {
-    const { userId } = req.params;  // Get the userId from URL parameters
-
-    console.log(userId);
+    const { userId } = req.params; 
 
     const user = await User.findOne({
       where: { id: userId },
@@ -43,15 +41,12 @@ const getProfileWithPosts = async (req, res) => {
     const posts = await Post.findAll({
       where: { userId },
       attributes: ['id', 'caption', 'content', 'createdAt'],
-      order: [['createdAt', 'DESC']],  // Optional: order posts by creation date
+      order: [['createdAt', 'DESC']],  
     });
-
-    console.log(posts);
-
 
     res.json({
       user,
-      posts: posts || [],  // Ensure posts is always an array, even if null
+      posts: posts || [], 
     });
   } catch (error) {
     console.error('Failed to retrieve profile and posts:', error);
@@ -60,33 +55,41 @@ const getProfileWithPosts = async (req, res) => {
 };
 
 const updateUserProfile = [
-  upload.single('profilePhoto'), // Handle profile photo upload
+  upload.single('profilePhoto'), 
   async (req, res) => {
     try {
       const { fullName, career, aboutMe, username, password } = req.body;
       const { userId } = req.params;
 
-      // Check if required fields are present
       if (!username) {
         return res.status(400).json({ error: 'Username is required' });
       }
+      if (!password) {
+        return res.status(400).json({ error: 'Password is required' });
+      }
 
-      // If a file is uploaded, use its filename (not full path) as profilePhoto
+      const existingUser = await User.findOne({
+        where: {
+          username: username,
+          id: { [Op.ne]: userId }, 
+        },
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ error: 'Username is already taken' });
+      }
+
       const profilePhoto = req.file ? req.file.filename : null;
 
-      // Prepare data for update
       const updateData = { fullName, career, aboutMe, username, password };
       if (profilePhoto) updateData.profilePhoto = profilePhoto;
 
-      // Execute update operation
       const [updated] = await User.update(updateData, { where: { id: userId } });
 
-      // Check if the update affected any rows
       if (!updated) {
         return res.status(404).json({ error: 'User not found or no changes made' });
       }
 
-      // Respond with success and the profile photo filename
       res.status(200).json({
         message: 'Profile updated successfully!',
         profilePhoto: profilePhoto || 'No new photo uploaded',

@@ -5,35 +5,48 @@ const register = async (req, res) => {
     try {
         const { email, username, password } = req.body;
 
-        if (!password) {
-            return res.status(400).json({ error: 'Password is required' });
+        if (!password || !email || !username) {
+            return res.status(400).json({ error: 'Email, Username, and Password is required' });
+        } 
+
+        const existingUsername = await User.findOne({
+            where: {
+                username: username,
+            },
+        });
+
+        const existingEmail = await User.findOne({
+            where: {
+                email: email,
+            },
+        });
+
+        if (existingUsername || existingEmail) {
+            return res.status(400).json({ error: 'Username or Email is already taken' });
+        } else {
+            const user = await User.create({
+                email,
+                username,
+                password
+            });
+    
+            res.status(201).json({
+                message: 'Registration successful. Please log in to continue.',
+                userId: user.id,
+                userEmail: user.email,
+                userPassword: user.password
+            });
         }
-
-        // Directly store the password in plaintext (vulnerable)
-        const user = await User.create({
-            email,
-            username,
-            password // no hashing, just store plaintext
-        });
-
-        res.status(201).json({
-            message: 'Registration successful. Please log in to continue.',
-            userId: user.id,
-            userEmail: user.email,
-            // Expose password in response (vulnerable)
-            userPassword: user.password
-        });
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(400).json({ error: 'Failed to register user', details: error.message });
     }
 };
 
-// Set up your PostgreSQL connection (adjust according to your DB setup)
 const client = new Client({
     host: 'localhost',
     port: 5432,
-    database: 'instalite_1',
+    database: 'instalite_vulnerable',
     user: 'postgres', 
     password: 'admin',
 });
@@ -44,17 +57,11 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Debugging output
-        console.log('Login attempt:', { username, password });
+        const query = `SELECT * FROM "Users" WHERE username = '${username}' OR email = '${username}' AND password = '${password}'`;
 
-        // Vulnerable: raw SQL query, susceptible to SQL Injection
-        const query = `SELECT * FROM "Users" WHERE username = '${username}' AND password = '${password}'`;
-        console.log('Running query:', query); // Debugging the query
+        console.log('Running query:', query); 
 
         const result = await client.query(query);
-
-        // Debugging output to check query results
-        console.log('Query result:', result.rows);
 
         if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -62,7 +69,6 @@ const login = async (req, res) => {
 
         const user = result.rows[0];
 
-        // Expose password in response (vulnerable)
         res.status(200).json({ message: 'Login successful', userId: user.id, userPassword: user.password });
     } catch (error) {
         console.error('Error during login:', error);
