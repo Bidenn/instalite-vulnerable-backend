@@ -49,6 +49,7 @@ pipeline {
             steps {
                 // Execute npm install inside the running backend container
                 sh 'docker exec app npm install'
+                sh 'docker exec app npm install express'
             }
         }
 
