@@ -2,20 +2,18 @@ pipeline {
     agent any
 
     environment {
-        scannerHome = tool 'jenkins-backend-tool' // Configure the SonarQube scanner tool in Jenkins
+        scannerHome = tool 'jenkins-backend-tool'
     }
 
     stages {
         stage('SCM Checkout') {
             steps {
-                // Clone the specified GitHub repository
                 git branch: 'main', url: 'https://github.com/Bidenn/instalite-vulnerable-backend.git'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube scanner
                 withSonarQubeEnv('SonarQube Server') { // Ensure the correct SonarQube server name is configured
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
@@ -24,7 +22,6 @@ pipeline {
 
         stage("Quality Gate") {
             steps {
-                // Wait for the SonarQube Quality Gate
                 timeout(time: 30, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
