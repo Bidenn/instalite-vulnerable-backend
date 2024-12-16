@@ -1,18 +1,23 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+const { Sequelize } = require("sequelize");
+const sequelize = require("../config/sequelize");
 
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-        host: process.env.DB_HOST,
-        dialect: 'postgres',
-    }
-);
+const User = require('./User');
+const Post = require('./Post');
+const Like = require('./Like');
+const Comment = require('./Comment');
 
-sequelize.authenticate()
-    .then(() => console.log('Database connected'))
-    .catch((err) => console.error('Error:', err));
+User.hasMany(Post, { foreignKey: "userId", as: "posts" });
 
-module.exports = sequelize;
+Post.belongsTo(User, { foreignKey: "userId", as: "author" });
+Post.hasMany(Comment, { foreignKey: "postId", as: "comments", onDelete: "CASCADE" });
+Post.hasMany(Like, { foreignKey: "postId", as: "likes", onDelete: "CASCADE" });
+
+Comment.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+module.exports = {
+    sequelize,
+    User,
+    Post,
+    Comment,
+    Like,
+};
