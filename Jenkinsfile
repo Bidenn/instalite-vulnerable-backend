@@ -14,19 +14,19 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube Server') { // Ensure the correct SonarQube server name is configured
+                withSonarQubeEnv('SonarQube Server') {
                     sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
 
-        // stage("Quality Gate") {
-        //     steps {
-        //         timeout(time: 30, unit: 'MINUTES') {
-        //             waitForQualityGate abortPipeline: true
-        //         }
-        //     }
-        // }
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 30, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Copy env-live to .env') {
             steps {
